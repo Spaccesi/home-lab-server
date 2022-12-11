@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    volumes:
+      - /home-server/home-assistant:/config
+      - /usr/share/zoneinfo/Europe/Madrid:/etc/localtime:ro
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
+
+  samba:
+    image: dperson/samba:rpi
+    restart: always
+    command: '-u "${SAMBA_USER};${SAMBA_PASS}" -s "media;/media;yes;no"
+    stdin_open: true
+    tty: true
+    ports:
+      - 139:139
+      - 445:445
+    volumes:
+      - /usr/share/zoneinfo/Europe/Madrid:/etc/localtime
+      - ${MEDIA}:/media
